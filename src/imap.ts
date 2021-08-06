@@ -30,7 +30,7 @@ const search = async (client: imapflow.ImapFlow): Promise<string | null | undefi
         seen: false,
         and: [
             { from: 'online.communications@alerts.comcast.net' },
-            { subject: 'Use this code to reset your password' },
+            { subject: 'Verification code for your Xfinity account' },
         ],
     });
 
@@ -39,7 +39,7 @@ const search = async (client: imapflow.ImapFlow): Promise<string | null | undefi
     const msgId = list[list.length - 1] + '';
     const lastMsg = await client.fetchOne(msgId, { source: true });
     const message = lastMsg?.source?.toString();
-    const reg = /password:(\d+)/i;
+    const reg = /Xfinity acc=ount:(\d+)/i;
     const result = message?.replace(/(\r\n|\n|\r)/gm, '').match(reg);
 
     return result?.[1];
@@ -83,6 +83,7 @@ export const fetchCode = async (userConfig: imapConfig): Promise<string> => {
                 client.mailboxOpen('INBOX');
             })
             .catch((e) => {
+                client.logout();
                 reject(new Error(`Error was thrown while attempting to connect to imap: ${e}`));
             });
     });

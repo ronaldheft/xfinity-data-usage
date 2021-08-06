@@ -71,6 +71,13 @@ const fetch = () => {
             console.log(`Next fetch in ${xfinityConfig.interval} minutes @ ${nextAt}`);
         }
     });
+    ['SIGINT', 'SIGTERM', 'SIGQUIT'].forEach((signal) =>
+        process.on(signal, () => {
+            console.log('sigint received killing child');
+            xfinity.kill();
+            process.exit();
+        }),
+    );
 };
 fetch();
 setInterval(fetch, intervalMs);

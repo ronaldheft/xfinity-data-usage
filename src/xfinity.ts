@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import { promises as fs } from 'fs';
 import puppeteer from 'puppeteer-core';
 import UserAgent from 'user-agents';
 
@@ -7,7 +8,7 @@ import { fetchCode, imapConfig } from './imap.js';
 const JSON_URL = 'https://customer.xfinity.com/apis/csp/account/me/services/internet/usage?filter=internet';
 const LOGIN_URL = 'https://customer.xfinity.com';
 const SECURITY_CHECK_TITLE = 'Security Check';
-const PASSWORD_RESET_TITLE = 'Please reset your Xfinity password';
+const COOKIES_FILE = '/config/cookies.json';
 
 export interface xfinityConfig {
     username: string;
@@ -62,6 +63,7 @@ export class Xfinity extends EventEmitter {
     #pageTimeout: number;
     #userAgent: string | undefined;
     #imapConfig: imapConfig | undefined;
+    #cookies: any;
 
     constructor({ username, password, pageTimeout }: xfinityConfig, imapConfig: imapConfig | undefined) {
         super();
@@ -77,11 +79,12 @@ export class Xfinity extends EventEmitter {
         if (!this.#userAgent) {
             this.#userAgent = this.getUserAgent();
         }
-
+        this.#cookies = await this.getCookies();
         console.log('Fetching Data');
         try {
             data = await this.retrieveDataUsage();
             console.log('Data retrieved');
+            await this.writeCookies();
         } catch (e) {
             this.#userAgent = undefined;
             throw e;
@@ -97,7 +100,8 @@ export class Xfinity extends EventEmitter {
         let data: xfinityUsage;
         let retries = 3;
 
-        do {
+        data = await this.getJson();
+        while (data?.error === 'unauthenticated' || data?.logged_in_within_limit === false) {
             if (retries === 0) {
                 throw new Error('Unable to login');
             }
@@ -107,8 +111,7 @@ export class Xfinity extends EventEmitter {
             await this.authenticate();
             retries--;
             data = await this.getJson();
-        } while (data.error === 'unauthenticated' || data.logged_in_within_limit === false);
-
+        }
         return data;
     }
 
@@ -136,6 +139,9 @@ export class Xfinity extends EventEmitter {
         await page.waitForSelector('#user');
         await page.type('#user', this.#username);
         await page.type('#passwd', this.#password);
+        if ((await page.$('#remember_me')) !== null) {
+            await page.click('#remember_me');
+        }
         await Promise.all([
             page.click('#sign_in'),
             page.waitForNavigation({ waitUntil: ['networkidle2', 'load', 'domcontentloaded'] }),
@@ -144,32 +150,36 @@ export class Xfinity extends EventEmitter {
         await page.waitForSelector('title');
         const pageTitle = await page.title();
         console.log('Page Title: ', pageTitle);
-        if (pageTitle === PASSWORD_RESET_TITLE) {
-            await this.resetPassword();
+        const twofa = await page.$('button[name=email_code]');
+        if (twofa) {
+            await this.handle2fa();
         } else if (pageTitle === SECURITY_CHECK_TITLE) {
             await this.bypassSecurityCheck();
         }
     }
 
-    private async resetPassword() {
-        console.log('Attempting to reset password');
+    private async handle2fa() {
+        console.log('Attempting to enter 2fa');
         if (this.#imapConfig === undefined) {
             throw new Error('No imap configured');
         }
         const page = await this.getPage();
-        await Promise.all([page.click('.submit'), page.waitForNavigation({ waitUntil: 'networkidle2' })]);
-        await Promise.all([page.click('#submitButton'), page.waitForNavigation({ waitUntil: 'networkidle2' })]);
+        await Promise.all([
+            page.click('button[name=email_code]'),
+            page.waitForNavigation({ waitUntil: ['networkidle2', 'load', 'domcontentloaded'] }),
+        ]);
+
+        // Get Code
         const code = await fetchCode(this.#imapConfig).catch((e) => console.error(e));
         if (!code) return;
-
         console.log(`CODE: ${code}`);
-        await page.waitForSelector('#resetCodeEntered');
-        await page.type('#resetCodeEntered', code);
-        await Promise.all([page.click('#submitButton'), page.waitForNavigation({ waitUntil: 'networkidle2' })]);
-        await page.waitForSelector('#password');
-        await page.type('#password', this.#password);
-        await page.type('#passwordRetype', this.#password);
-        await Promise.all([page.click('#submitButton'), page.waitForNavigation({ waitUntil: 'networkidle2' })]);
+
+        // Enter Code
+        await page.type('#verificationCode', code);
+        await page.click('#remember_second_factor_checkbox');
+        await page.click('#sign_in');
+        await page.waitForNavigation({ waitUntil: 'networkidle2' });
+        // await Promise.all([page.click('#sign_in'), page.waitForNavigation({ waitUntil: 'networkidle2' })]);
     }
 
     private async bypassSecurityCheck() {
@@ -196,6 +206,9 @@ export class Xfinity extends EventEmitter {
 
             if (this.#userAgent) {
                 await page.setUserAgent(this.getUserAgent());
+            }
+            if (this.#cookies) {
+                await page.setCookie(...this.#cookies);
             }
             page.setDefaultNavigationTimeout(this.#pageTimeout);
             await page.setViewport({ width: 1920, height: 1080 });
@@ -232,8 +245,26 @@ export class Xfinity extends EventEmitter {
         }
     }
 
-    private async screenshot(filename: string) {
+    private async screenshot(filename: string): Promise<void> {
         const page = await this.getPage();
-        return page.screenshot({ path: `/config/screenshots/${filename}.png` });
+        await page.screenshot({ path: `${filename}.png` });
+        // return page.screenshot({ path: `/config/screenshots/${filename}.png` });
+    }
+
+    private async writeCookies(): Promise<void> {
+        const page = await this.getPage();
+        const client = await page.target().createCDPSession();
+        const cookies = (await client.send('Network.getAllCookies')).cookies;
+
+        await fs.writeFile(COOKIES_FILE, JSON.stringify(cookies, null, 2));
+    }
+
+    private async getCookies() {
+        try {
+            const cookiesString = await fs.readFile(COOKIES_FILE, 'utf8');
+            return JSON.parse(cookiesString);
+        } catch (e) {
+            console.log('cookies file not found.', COOKIES_FILE);
+        }
     }
 }
