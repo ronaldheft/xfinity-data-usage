@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.14.0](https://www.github.com/ronaldheft/xfinity-data-usage/compare/v0.13.2...v0.14.0) (2021-09-13)
+
+
+### Features
+
+* Add check for confirmation element after reseting password ([a6b8ee0](https://www.github.com/ronaldheft/xfinity-data-usage/commit/a6b8ee0565358c8c715b5d211a246490375f3b31))
+* Add logging levels ([4bb38f7](https://www.github.com/ronaldheft/xfinity-data-usage/commit/4bb38f7c1e2572b6cf131376208d1568f58fa857))
+* Configurable config folder ([f0a57e5](https://www.github.com/ronaldheft/xfinity-data-usage/commit/f0a57e5757ffe5b5348e049b9b6a6f5ddfee4e05))
+* Maintain Xfinity account session (less password resets) ([#39](https://www.github.com/ronaldheft/xfinity-data-usage/issues/39)) ([ffaac34](https://www.github.com/ronaldheft/xfinity-data-usage/commit/ffaac348de25c28f7fffbd3a7d0f5a5924c8d437))
+
+
+### Bug Fixes
+
+* remove console.log ([6ce6cee](https://www.github.com/ronaldheft/xfinity-data-usage/commit/6ce6cee5dc64f161225fdd1a795203c1b0fdd5b0))
+* Wait for pre selector on json page ([af13d95](https://www.github.com/ronaldheft/xfinity-data-usage/commit/af13d959191831122d714088153fdd916b6a3482))
+
+
+### Miscellaneous
+
+* release 0.14.0 ([#40](https://www.github.com/ronaldheft/xfinity-data-usage/issues/40)) ([cab6940](https://www.github.com/ronaldheft/xfinity-data-usage/commit/cab6940c9ae49da7e3784adbf1f23b251b683ec2))
+* release 0.15.0 ([#41](https://www.github.com/ronaldheft/xfinity-data-usage/issues/41)) ([d52c7c6](https://www.github.com/ronaldheft/xfinity-data-usage/commit/d52c7c60c040f6e525c112c98b04ed7d66054ba1))
+* release 0.15.1 ([#42](https://www.github.com/ronaldheft/xfinity-data-usage/issues/42)) ([ee5ebbb](https://www.github.com/ronaldheft/xfinity-data-usage/commit/ee5ebbb01d30a93e825913bc9429b121e96303ee))
+* release 0.15.2 ([#43](https://www.github.com/ronaldheft/xfinity-data-usage/issues/43)) ([e8c8d5f](https://www.github.com/ronaldheft/xfinity-data-usage/commit/e8c8d5fb6aab3363460881d30c7f752655805add))
+* release 0.15.3 ([#44](https://www.github.com/ronaldheft/xfinity-data-usage/issues/44)) ([e9f3691](https://www.github.com/ronaldheft/xfinity-data-usage/commit/e9f36910c7518e7a177391f3b7e9a294d84fad0b))
+* Revent release please action changes ([326c49e](https://www.github.com/ronaldheft/xfinity-data-usage/commit/326c49e854c88d7775f89bb2a771e5c7d20a95d2))
+* Update dependencies ([7fa9d9c](https://www.github.com/ronaldheft/xfinity-data-usage/commit/7fa9d9c54c239f35284b7860f41bd98da0682e97))
+* Update GitHub Action for releases ([96ab37f](https://www.github.com/ronaldheft/xfinity-data-usage/commit/96ab37fcd5693ea08bbb7ce54a2bc5d9803b4645))
+
 ### [0.15.3](https://www.github.com/zachowj/xfinity-data-usage/compare/v0.15.2...v0.15.3) (2021-09-10)
 
 
