@@ -1,5 +1,17 @@
 # Changelog
 
+### [0.15.5](https://www.github.com/ronaldheft/xfinity-data-usage/compare/v0.15.4...v0.15.5) (2021-09-13)
+
+
+### Bug Fixes
+
+* Missing config option ([f801406](https://www.github.com/ronaldheft/xfinity-data-usage/commit/f80140689f405382666c2fa408e60bd8497d1aed))
+
+
+### Miscellaneous
+
+* Update Docker image owner ([4e0b374](https://www.github.com/ronaldheft/xfinity-data-usage/commit/4e0b374b82b679dfcfab8e0a312424d38c90f9c0))
+
 ### [0.15.4](https://www.github.com/ronaldheft/xfinity-data-usage/compare/v0.13.2...v0.15.4) (2021-09-13)
 
 
