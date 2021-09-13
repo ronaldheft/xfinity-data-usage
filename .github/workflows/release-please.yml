@@ -21,7 +21,7 @@ jobs:
       - name: Prepare
         id: prepare
         run: |
-          DOCKER_IMAGE=ronaldheft/xfinity-data-usage
+          DOCKER_IMAGE=ronaldheft50/xfinity-data-usage
           DOCKER_PLATFORMS=linux/amd64,linux/arm64,linux/arm/v7
           VERSION=${{ steps.release.outputs.tag_name }}
           TAGS="--tag ${DOCKER_IMAGE}:${VERSION} --tag ${DOCKER_IMAGE}:latest"
@@ -64,4 +64,4 @@ jobs:
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKERHUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-          DOCKERHUB_REPOSITORY: ronaldheft/xfinity-data-usage
+          DOCKERHUB_REPOSITORY: ronaldheft50/xfinity-data-usage
